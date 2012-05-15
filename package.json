@@ -1,0 +1,20 @@
+{
+  "name": "statsd-amqp-backend",
+  "description": "A backend for StatsD to emit stats to an AMQP queue",
+  "author": "Daniel Schauenberg",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mrtazz/statsd-amqp-backend.git"
+  },
+  "version": "0.1.0",
+  "dependencies": {
+    "amqp": "0.1.3"
+  },
+  "devDependencies": {
+    "nodeunit": "0.7.x"
+  },
+  "engine": {
+    "node": ">=0.4"
+  },
+  "main": "statsd-amqp-backend/index.js"
+}

@@ -11,12 +11,14 @@ publishes stats to an AMQP queue instead of graphite
 ## Configuration
 You have to give basic information about your AMQP server to use
 ```
-{ host: 'localhost'
-, port: 5672
-, login: 'guest'
-, password: 'guest'
-, vhost: '/'
-} }
+{ amqpHost: 'localhost'
+, amqpPort: 5672
+, amqpLogin: 'guest'
+, amqpPassword: 'guest'
+, amqpVhost: '/'
+, amqpQueue: 'statsd'
+, amqpDefaultExchange: ''
+}
 ```
 
 ## Dependencies
@@ -30,6 +32,5 @@ If you want to contribute:
 1. Clone your fork
 2. Hack away
 3. If you are adding new functionality, document it in the README
-4. Add tests so I don't accidentally break functionality
-5. Push the branch up to GitHub
-6. Send a pull request
+4. Push the branch up to GitHub
+5. Send a pull request
