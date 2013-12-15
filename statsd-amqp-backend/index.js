@@ -67,118 +67,116 @@ var flush_stats = function(ts, metrics)
   var result;
   var ts_suffix = ' ' + ts + "\n";
 
-  open.then(function(conn) {
-    return conn.createChannel().then(function(ch) {
-      channel = ch;
-      var ok = ch.assertExchange(options.exchange, 'topic', {durable: true});
-      return ok.then(function() {
+  return open.createChannel().then(function(ch) {
+    channel = ch;
+    var ok = ch.assertExchange(options.exchange, 'topic', {durable: true});
+    return ok.then(function() {
 
-        switch(options.format)
-        {
-        case 'graphite':
-          exchangeOptions = {
-            'contentType': 'text/graphite',
-            'appId': 'statsdAMQP',
-            'deliveryMode': 2
-          }
+      switch(options.format)
+      {
+      case 'graphite':
+        exchangeOptions = {
+          'contentType': 'text/graphite',
+          'appId': 'statsdAMQP',
+          'deliveryMode': 2
+        }
 
-          // Send counters
-          for (key in metrics.counters) {
-            value = metrics.counters[key];
-            var valuePerSecond = metrics.counter_rates[key];
+        // Send counters
+        for (key in metrics.counters) {
+          value = metrics.counters[key];
+          var valuePerSecond = metrics.counter_rates[key];
 
-            result = globalPrefix + prefixCounter + key + '.rate' + globalSuffix + valuePerSecond + ts_suffix;
-            payload.push({
-              metric: globalPrefix + prefixCounter + key + '.rate',
-              result: result
-            });
-
-            if (flush_counts) {
-              result = globalPrefix + prefixCounter + key + '.count' + globalSuffix + value + ts_suffix;
-              payload.push({
-                metric: globalPrefix + prefixCounter + key + '.count',
-                result: result
-              });
-            }
-          }
-
-          // Send gauges
-          for (key in metrics.gauges) {
-            value = metrics.gauges[key];
-
-            result = globalPrefix + prefixGauge + key + globalSuffix + value + ts_suffix;
-            payload.push({
-              metric: globalPrefix + prefixGauge + key,
-              result: result
-            });
-          }
-
-          // Send timers
-          for (key in metrics.timer_data) {
-            for (timer_data_key in metrics.timer_data[key]) {
-              if (typeof(metrics.timer_data[key][timer_data_key]) === 'number') {
-                result = globalPrefix + prefixTimer + key + timer_data_key + globalSuffix + metrics.timer_data[key][timer_data_key] + ts_suffix;
-                payload.push({
-                  metric: globalPrefix + prefixTimer + key + timer_data_key,
-                  result: result
-                 });
-              } else {
-                for (var timer_data_sub_key in metrics.timer_data[key][timer_data_key]) {
-                  if (debug) {
-                    util.log(metrics.timer_data[key][timer_data_key][timer_data_sub_key].toString());
-                  }
-                  result = globalPrefix + prefixTimer + key + timer_data_key + '.' + timer_data_sub_key + globalSuffix + metrics.timer_data[key][timer_data_key][timer_data_sub_key] + ts_suffix;
-                  payload.push({
-                    metric: globalPrefix + prefixTimer + key + timer_data_key + '.' + timer_data_sub_key,
-                    result: result
-                   });
-                }
-              }
-            }
-          }
-
-          // Send other stats
-          result = globalPrefix + prefixStats + '.numStats' + globalSuffix + payload.length + ts_suffix;
+          result = globalPrefix + prefixCounter + key + '.rate' + globalSuffix + valuePerSecond + ts_suffix;
           payload.push({
-            metric: globalPrefix + prefixStats + '.numStats',
+            metric: globalPrefix + prefixCounter + key + '.rate',
             result: result
           });
 
-          // Send statsd metrics
-          for (key in metrics.statsd_metrics) {
-            result = globalPrefix + prefixStats + '.' + key + globalSuffix + metrics.statsd_metrics[key] + ts_suffix;
+          if (flush_counts) {
+            result = globalPrefix + prefixCounter + key + '.count' + globalSuffix + value + ts_suffix;
             payload.push({
-              metric: globalPrefix + prefixStats + '.' + key,
+              metric: globalPrefix + prefixCounter + key + '.count',
               result: result
             });
           }
-
-          post_stats(payload, function() {
-            if (debug) {
-              util.log("numStats: " + payload.length);
-            }
-            return ch.close();
-          });
-          break;
-        case 'json':
-          exchangeOptions = {
-            'contentType': 'application/json',
-            'appId': 'statsdAMQP',
-            'deliveryMode': 2
-          }
-
-          payload.push({
-            metric: 'json_payload',
-            result: JSON.stringify(data)
-          });
-          post_stats(payload, function() {
-            return ch.close();
-          });
-          break;
         }
-      });
+
+        // Send gauges
+        for (key in metrics.gauges) {
+          value = metrics.gauges[key];
+
+          result = globalPrefix + prefixGauge + key + globalSuffix + value + ts_suffix;
+          payload.push({
+            metric: globalPrefix + prefixGauge + key,
+            result: result
+          });
+        }
+
+        // Send timers
+        for (key in metrics.timer_data) {
+          for (timer_data_key in metrics.timer_data[key]) {
+            if (typeof(metrics.timer_data[key][timer_data_key]) === 'number') {
+              result = globalPrefix + prefixTimer + key + timer_data_key + globalSuffix + metrics.timer_data[key][timer_data_key] + ts_suffix;
+              payload.push({
+                metric: globalPrefix + prefixTimer + key + timer_data_key,
+                result: result
+               });
+            } else {
+              for (var timer_data_sub_key in metrics.timer_data[key][timer_data_key]) {
+                if (debug) {
+                  util.log(metrics.timer_data[key][timer_data_key][timer_data_sub_key].toString());
+                }
+                result = globalPrefix + prefixTimer + key + timer_data_key + '.' + timer_data_sub_key + globalSuffix + metrics.timer_data[key][timer_data_key][timer_data_sub_key] + ts_suffix;
+                payload.push({
+                  metric: globalPrefix + prefixTimer + key + timer_data_key + '.' + timer_data_sub_key,
+                  result: result
+                 });
+              }
+            }
+          }
+        }
+
+        // Send other stats
+        result = globalPrefix + prefixStats + '.numStats' + globalSuffix + payload.length + ts_suffix;
+        payload.push({
+          metric: globalPrefix + prefixStats + '.numStats',
+          result: result
+        });
+
+        // Send statsd metrics
+        for (key in metrics.statsd_metrics) {
+          result = globalPrefix + prefixStats + '.' + key + globalSuffix + metrics.statsd_metrics[key] + ts_suffix;
+          payload.push({
+            metric: globalPrefix + prefixStats + '.' + key,
+            result: result
+          });
+        }
+
+        post_stats(payload, function() {
+          if (debug) {
+            util.log("numStats: " + payload.length);
+          }
+          return ch.close();
+        });
+        break;
+      case 'json':
+        exchangeOptions = {
+          'contentType': 'application/json',
+          'appId': 'statsdAMQP',
+          'deliveryMode': 2
+        }
+
+        payload.push({
+          metric: 'json_payload',
+          result: JSON.stringify(data)
+        });
+        post_stats(payload, function() {
+          return ch.close();
+        });
+        break;
+      }
     });
-  }).then(null, console.warn);
+  });
 }
 
 var post_stats = function(payload, callback)
@@ -207,6 +205,21 @@ var backend_status = function(writeCb)
     writeCb(null, 'amqp', stat, amqpStats[stat]);
   }
 };
+
+var connect = function(connectUri, sslOptions, cb)
+{
+  amqp.connect(connectUri, sslOptions).then(function(connection) {
+    connection.on('error', function(err) {
+      if (debug) {
+        util.log("Disconnected from AMQP server, retrying..");
+      }
+      connect(connectUri, sslOptions, function(cb) {
+        open = cb;
+      });
+    });
+    cb(connection);
+  }).then(null, console.warn);
+}
 
 exports.init = function(startup_time, config, events)
 {
@@ -250,7 +263,9 @@ exports.init = function(startup_time, config, events)
   }
 
   connectUri = connectPrefix + options.login + ':' + options.password + '@' + options.host + ':' + options.port + '/' + options.vhost;
-  open = amqp.connect(connectUri, sslOptions);
+  connect(connectUri, sslOptions, function(cb) {
+    open = cb;
+  });
 
   amqpStats.last_flush = startup_time;
   amqpStats.last_exception = startup_time;
