@@ -6,7 +6,7 @@
     "type": "git",
     "url": "https://github.com/mrtazz/statsd-amqp-backend.git"
   },
-  "version": "0.2.0",
+  "version": "0.1.0",
   "dependencies": {
     "amqplib": ">=0.1"
   },
