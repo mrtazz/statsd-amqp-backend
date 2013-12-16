@@ -15,20 +15,22 @@ You have to give basic information about your AMQP server to use:
 
 ```
 {
-, backends: [ "statsd-amqp-backend" ]
-, amqpHost: 'localhost'
-, amqpPort: 5672
-, amqpLogin: 'guest'
-, amqpPassword: 'guest'
-, amqpVhost: '/'
-, amqpDefaultExchange: ''
-, amqpMessageFormat: 'graphite' // can be 'graphite' or 'json'
-, amqpSsl: {
+  backends: [ "statsd-amqp-backend" ]
+, amqp: {
+    host: 'localhost'
+  , port: 5672
+  , login: 'guest'
+  , password: 'guest'
+  , vhost: '/'
+  , defaultExchange: ''
+  , messageFormat: 'graphite' // can be 'graphite' or 'json'
+  , ssl: {
       enabled : false
     , keyFile : '/path/to/key/file'
     , certFile : '/path/to/cert/file'
     , caFile : '/path/to/cacert/file'
     , rejectUnauthorized : false
+    }
   }
 }
 ```

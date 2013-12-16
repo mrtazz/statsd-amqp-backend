@@ -8,14 +8,14 @@
  *
  * This backend supports the following config options:
  *
- *   amqpHost: Hostname of AMQP server.
- *   amqpPort: Port to contact AMQP server at.
- *   amqpLogin: Login for the AMQP server.
- *   amqpPassword: Password for the AMQP server.
- *   amqpVhost: vhost for the AMQP server.
- *   amqpDefaultExchange: default AMQP topic exchange to use.
- *   amqpMessageFormat: AMQP message format: graphite or json
- *   amqpSsl: SSL options for AMQP.
+ *   amqp.host: Hostname of AMQP server.
+ *   amqp.port: Port to contact AMQP server at.
+ *   amqp.login: Login for the AMQP server.
+ *   amqp.password: Password for the AMQP server.
+ *   amqp.vhost: vhost for the AMQP server.
+ *   amqp.defaultExchange: default AMQP topic exchange to use.
+ *   amqp.messageFormat: AMQP message format: graphite or json
+ *   amqp.ssl: SSL options for AMQP.
  */
 var util  = require('util');
 var fs    = require('fs');
@@ -238,26 +238,26 @@ exports.init = function(startup_time, config, events)
   var sslOptions    = {};
   var connectPrefix = 'amqp://';
 
-  options.host      = config.amqpHost || 'localhost';
-  options.port      = config.amqpPort || 5672;
-  options.login     = config.amqpLogin || 'guest';
-  options.password  = config.amqpPassword || 'guest';
-  options.vhost     = config.amqpVhost || '/';
-  options.exchange  = config.amqpDefaultExchange || '';
-  options.format    = config.amqpMessageFormat || 'json';
+  options.host      = config.amqp.host || 'localhost';
+  options.port      = config.amqp.port || 5672;
+  options.login     = config.amqp.login || 'guest';
+  options.password  = config.amqp.password || 'guest';
+  options.vhost     = config.amqp.vhost || '/';
+  options.exchange  = config.amqp.defaultExchange || '';
+  options.format    = config.amqp.messageFormat || 'json';
 
   // ssl settings
-  if (typeof config.amqpSsl !== 'undefined' && config.amqpSsl.enabled == true) {
+  if (typeof config.amqp.ssl !== 'undefined' && config.amqp.ssl.enabled == true) {
     connectPrefix   = 'amqps://';
-    options.port    = config.amqpPort || 5671;
-    var passphrase  = config.amqpSsl.passphrase || '';
-    var reject      = config.amqpSsl.rejectUnauthorized || false;
+    options.port    = config.amqp.port || 5671;
+    var passphrase  = config.amqp.ssl.passphrase || '';
+    var reject      = config.amqp.ssl.rejectUnauthorized || false;
 
     sslOptions = {
       passphrase: passphrase,
-      cert: fs.readFileSync(config.amqpSsl.certFile),
-      key: fs.readFileSync(config.amqpSsl.keyFile),
-      ca: [fs.readFileSync(config.amqpSsl.caFile)],
+      cert: fs.readFileSync(config.amqp.ssl.certFile),
+      key: fs.readFileSync(config.amqp.ssl.keyFile),
+      ca: [fs.readFileSync(config.amqp.ssl.caFile)],
       rejectUnauthorized: reject
     }
   }
