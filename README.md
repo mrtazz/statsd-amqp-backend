@@ -37,8 +37,8 @@ You have to give basic information about your AMQP server to use:
 
 ## AMQP
 
-When using `amqpMessageFormat: 'json'`, at flush time the entire metrics payload 
-will be sent to the `amqpDefaultExchange` using the routing key `json_payload`, 
+When using `messageFormat: 'json'`, at flush time the entire metrics payload
+will be sent to the `defaultExchange` using the routing key `json_payload`,
 with contentType `application/json`.
 Example:
 
@@ -46,14 +46,16 @@ Example:
 {"counters":{"my-metrics.bad_lines_seen":0,"my-metrics.packets_received":0},"gauges":{},"timers":{},"timer_counters":{},"sets":{},"counter_rates":{"my-metrics.bad_lines_seen":0,"my-metrics.packets_received":0},"timer_data":{},"pctThreshold":[90],"statsd_metrics":{"processing_time":0}}
 ```
 
-When using `amqpMessageFormat: 'graphite'`, at flush time each metric will be sent
-individually to the `amqpDefaultExchange` using the metric's key name as the routing key, 
+When using `messageFormat: 'graphite'`, at flush time each metric will be sent
+individually to the `defaultExchange` using the metric's key name as the routing key,
 with contentType `text/graphite`.
 Example:
 
 ```
-my-metrics.bad_lines_seen 0 1387057730
-my-metrics.macbook-aw.bad_lines_seen 0 1387057730
+stats.counters.my-metrics.bad_lines_seen.rate 0 1387255600
+stats.counters.my-metrics.bad_lines_seen.count 0 1387255600
+stats.my-metrics.numStats 4 1387255600
+stats.my-metrics.processing_time 0 1387255600
 ```
 
 ## Dependencies
