@@ -16,6 +16,11 @@
  *   amqp.defaultExchange: default AMQP topic exchange to use.
  *   amqp.messageFormat: AMQP message format: graphite or json
  *   amqp.ssl: SSL options for AMQP.
+ *   amqp.globalPrefix: global prefix to use for sending stats [default: "stats"]
+ *   amqp.prefixCounter: prefix for counter metrics [default: "counters"]
+ *   amqp.prefixTimer: prefix for timer metrics [default: "timers"]
+ *   amqp.prefixGauge: prefix for gauge metrics [default: "gauges"]
+ *   amqp.globalSuffix: global suffix to use for sending stats [default: ""]
  */
 var util  = require('util');
 var fs    = require('fs');
@@ -224,11 +229,11 @@ var connect = function(connectUri, sslOptions, cb)
 exports.init = function(startup_time, config, events)
 {
   // set defaults for prefixes & suffix
-  globalPrefix  = "stats.";
-  prefixCounter = "counters.";
-  prefixGauge   = "gauges.";
-  prefixTimer   = "timers.";
-  globalSuffix  = ' ';
+  globalPrefix  = config.amqp.globalPrefix || "stats.";
+  prefixCounter = config.amqp.prefixCounter || "counters.";
+  prefixGauge   = config.amqp.prefixGauge || "gauges.";
+  prefixTimer   = config.amqp.prefixTimer || "timers.";
+  globalSuffix  = config.amqp.globalSuffix || ' ';
 
   amqp = require('amqplib');
   debug = config.debug;
