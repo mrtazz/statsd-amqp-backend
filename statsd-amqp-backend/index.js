@@ -65,7 +65,7 @@ var deepCopy = function(obj) {
 
 var flush_stats = function(ts, metrics)
 {
-  var data = deepCopy(metrics);
+  metrics = deepCopy(metrics);
   var payload = [];
   var key;
   var value;
