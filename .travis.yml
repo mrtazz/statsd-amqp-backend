@@ -1,0 +1,14 @@
+language: node_js
+node_js:
+- '0.8'
+- '0.10'
+notifications:
+  email: false
+deploy:
+  provider: npm
+  email: d@unwiredcouch.com
+  api_key:
+    secure: ZnFAIGoudq1DRsfQToN4Dpe6WbuP8nSIJy2cmsu6R4nS/YSNg+NHMwMzV5uj3MJHSy2A4nfT7JNdSG8bLDE6JB30To1tFBJX9sEkTsl89OHDfVPt7uzDa9l5YNIqVAp8prxbxljZ/sMae9OUMON7ViLPEtT6ejBE6PnXaXbhw8g=
+  on:
+    tags: true
+    repo: mrtazz/statsd-amqp-backend
