@@ -52,16 +52,13 @@ var deepCopy = function(obj) {
 var flush_stats = function(ts, metrics)
 {
   metrics = deepCopy(metrics);
-  var payload = [];
-  var key;
-  var value;
-  var result;
-  var ts_suffix = ' ' + ts + "\n";
 
   return open.createChannel().then(function(ch) {
     channel = ch;
     var ok = ch.assertExchange(options.exchange, 'topic', {durable: true});
     return ok.then(function() {
+      var key, value, result, payload = [];
+      var ts_suffix = ' ' + ts + "\n";
 
       switch(options.format)
       {
@@ -70,7 +67,7 @@ var flush_stats = function(ts, metrics)
           'contentType': 'text/graphite',
           'appId': 'statsdAMQP',
           'deliveryMode': 2
-        }
+        };
 
         // Send counters
         for (key in metrics.counters) {
@@ -105,7 +102,7 @@ var flush_stats = function(ts, metrics)
 
         // Send timers
         for (key in metrics.timer_data) {
-          for (timer_data_key in metrics.timer_data[key]) {
+          for (var timer_data_key in metrics.timer_data[key]) {
             if (typeof(metrics.timer_data[key][timer_data_key]) === 'number') {
               result = globalPrefix + prefixTimer + key + timer_data_key + globalSuffix + metrics.timer_data[key][timer_data_key] + ts_suffix;
               payload.push({
@@ -155,7 +152,7 @@ var flush_stats = function(ts, metrics)
           'contentType': 'application/json',
           'appId': 'statsdAMQP',
           'deliveryMode': 2
-        }
+        };
 
         payload.push({
           metric: 'json_payload',
@@ -168,13 +165,13 @@ var flush_stats = function(ts, metrics)
       }
     });
   });
-}
+};
 
 var post_stats = function(payload, callback)
 {
   try {
-    for (key in payload) {
-      data = payload[key];
+    for (var key in payload) {
+      var data = payload[key];
       channel.publish(options.exchange, data.metric, new Buffer(String(data.result)), exchangeOptions);
       if (debug) {
         util.log("Published: " + data.result);
@@ -188,11 +185,11 @@ var post_stats = function(payload, callback)
       }
     amqpStats.last_exception = Math.round(new Date().getTime() / 1000);
   }
-}
+};
 
 var backend_status = function(writeCb)
 {
-  for (stat in amqpStats) {
+  for (var stat in amqpStats) {
     writeCb(null, 'amqp', stat, amqpStats[stat]);
   }
 };
@@ -210,7 +207,7 @@ var connect = function(connectUri, sslOptions, cb)
     });
     cb(connection);
   }).then(null, console.warn);
-}
+};
 
 exports.init = function(startup_time, config, events)
 {
@@ -238,7 +235,7 @@ exports.init = function(startup_time, config, events)
   options.format    = config.amqp.messageFormat || 'json';
 
   // ssl settings
-  if (typeof config.amqp.ssl !== 'undefined' && config.amqp.ssl.enabled == true) {
+  if (typeof config.amqp.ssl !== 'undefined' && config.amqp.ssl.enabled === true) {
     connectPrefix   = 'amqps://';
     options.port    = config.amqp.port || 5671;
     var passphrase  = config.amqp.ssl.passphrase || '';
@@ -250,7 +247,7 @@ exports.init = function(startup_time, config, events)
       key: fs.readFileSync(config.amqp.ssl.keyFile),
       ca: [fs.readFileSync(config.amqp.ssl.caFile)],
       rejectUnauthorized: reject
-    }
+    };
   }
 
   connectUri = connectPrefix + options.login + ':' + options.password + '@' + options.host + ':' + options.port + '/' + options.vhost;
