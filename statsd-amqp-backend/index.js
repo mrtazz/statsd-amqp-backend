@@ -156,7 +156,7 @@ var flush_stats = function (ts, metrics) {
 
                     payload.push({
                         metric: 'json_payload',
-                        result: JSON.stringify(data)
+                        result: JSON.stringify(metrics)
                     });
                     post_stats(payload, function () {
                         return ch.close();
