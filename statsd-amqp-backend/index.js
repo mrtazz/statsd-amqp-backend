@@ -192,19 +192,41 @@ var backend_status = function (writeCb) {
     }
 };
 
-var connect = function (connectUri, sslOptions, cb) {
-    amqp.connect(connectUri, sslOptions).then(function (connection) {
+var connect = function (connectUri, sslOptions) {
+    amqp.connect(connectUri, sslOptions).then(
+      function (connection) {
         connection.on('error', function (err) {
             if (debug) {
-                util.log("Disconnected from AMQP server, retrying..");
+                util.log("Amqp connection error, reconnecting ...");
             }
-            connect(connectUri, sslOptions, function (cb) {
-                open = cb;
-            });
+            waitAndConnect(connectUri, sslOptions);
         });
-        cb(connection);
-    }).then(null, console.warn);
+
+        connection.on('close', function () {
+            if (debug) {
+                util.log("Amqp connection closed, reconnecting ...");
+            }
+            waitAndConnect(connectUri, sslOptions);
+        });
+
+        // Set global connection variable
+        open = connection;
+      },
+      function (error) {
+        if (debug) {
+            util.log("Amqp connection error, reconnecting ...");
+        }
+
+        waitAndConnect(connectUri, sslOptions);
+      }
+    );
 };
+
+var waitAndConnect = function (connectUri, sslOptions) {
+  setTimeout(function () {
+    connect(connectUri, sslOptions);
+  }, 2000);
+}
 
 exports.init = function (startup_time, config, events) {
     // set defaults for prefixes & suffix
@@ -247,9 +269,7 @@ exports.init = function (startup_time, config, events) {
     }
 
     connectUri = connectPrefix + options.login + ':' + options.password + '@' + options.host + ':' + options.port + '/' + options.vhost;
-    connect(connectUri, sslOptions, function (cb) {
-        open = cb;
-    });
+    connect(connectUri, sslOptions);
 
     amqpStats.last_flush = startup_time;
     amqpStats.last_exception = startup_time;
